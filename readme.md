@@ -13,11 +13,11 @@ API para **registrar gastos**, consultarlos con filtros (fecha, pagado, texto) y
 
 ---
 
-## ⚡ Instalación
+## Instalación
 ```bash
 # 1. Clonar el repo
-git clone <url-del-repo>
-cd API 
+git clone https://github.com/JuanBisio/Kickoff-ExpenseTrackerAPI-.git
+cd Kickoff-ExpenseTrackerAPI
 
 # 2. Instalar dependencias
 npm install
@@ -34,6 +34,10 @@ docker run -d --name mongo \
 # 5. Ejecutar
 # Desarrollo
 npm run dev
+
+# Cargar gastos a la DB
+npm run seed
+
 # Compilar a JS
 npm run build
 # Producción

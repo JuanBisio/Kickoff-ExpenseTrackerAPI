@@ -1,0 +1,161 @@
+{
+  "info": {
+    "name": "ExpenseTrackerAPI - Collection",
+    "_postman_id": "a209b5db-2bba-418b-bbaa-97b25e911bc2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection to test all endpoints of the ExpenseTrackerAPI."
+  },
+  "item": [
+    {
+      "name": "Create Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 123.45,\n  \"paid\": false,\n  \"date\": \"2025-09-21 12:00\",\n  \"description\": \"Groceries - supermarket\"\n}"
+        },
+        "url": "{{base_url}}/expenses"
+      }
+    },
+    {
+      "name": "Get Expense by ID",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/expenses/:id"
+      }
+    },
+    {
+      "name": "Update Description",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Groceries - weekly supermarket\"\n}"
+        },
+        "url": "{{base_url}}/expenses/:id/description"
+      }
+    },
+    {
+      "name": "Mark as Paid / Unpaid",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paid\": true\n}"
+        },
+        "url": "{{base_url}}/expenses/:id/paid"
+      }
+    },
+    {
+      "name": "List Expenses (no filters)",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/expenses"
+      }
+    },
+    {
+      "name": "List Expenses (filters + pagination)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/expenses?from=2025-09-01&to=2025-09-30%2023:59&paid=all&q=super&page=1&limit=10",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "expenses"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "2025-09-01"
+            },
+            {
+              "key": "to",
+              "value": "2025-09-30 23:59"
+            },
+            {
+              "key": "paid",
+              "value": "all"
+            },
+            {
+              "key": "q",
+              "value": "super"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Total Summary (no filters)",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/expenses/summary/total"
+      }
+    },
+    {
+      "name": "Total Summary (with filters)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/expenses/summary/total?from=2025-09-01&to=2025-09-30%2023:59&paid=true",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "expenses",
+            "summary",
+            "total"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "2025-09-01"
+            },
+            {
+              "key": "to",
+              "value": "2025-09-30 23:59"
+            },
+            {
+              "key": "paid",
+              "value": "true"
+            }
+          ]
+        }
+      }
+    }
+
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ]
+}
