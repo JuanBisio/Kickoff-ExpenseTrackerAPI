@@ -20,16 +20,23 @@ async function computeForDay(day: Date) {
   const dateKey = ymd(start); //Formatea la fecha de inicio del día "YYYY-MM-DD"
 
   const [result] = await Expense.aggregate([
+    // aggregate devuelve un array siempre aunquesea un solo resultado
     { $match: { date: { $gte: start, $lte: end } } },
-    { $group: { _id: null, total: { $sum: "$amount" } } }
+    { $group: { _id: null, total: { $sum: "$amount" } } } // id null porque no nos interesa agrupar por ningún campo
+    //{ $group: { _id: "$paid", total: { $sum: "$amount" } } } // ejemplo agrupar por pagado o no pagado
   ]);
 
   const total = result?.total || 0;
-  await DailyTotal.updateOne({ dateKey }, { $set: { total } }, { upsert: true }); // upsert: true crea si no existe
+  await DailyTotal.updateOne(
+    { dateKey }, // filtro
+    { $set: { total } }, //actualiza total
+    { upsert: true } //opciones (upsert: true crea si no existe)
+  ); 
   console.log(`DailyTotal upsert ${dateKey} = ${total}`);
 }
 
 export async function runOnceForYesterday() {
+  //Calcular la fecha de ayer
   const now = new Date();
   const y = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1);
   await computeForDay(y);
@@ -41,8 +48,4 @@ export function scheduleDailyTotals() {
     try { await runOnceForYesterday(); } catch (e) { console.error(e); }
   });
   console.log("Cron daily totals programado 00:05 local");
-}
-
-if (process.argv.includes("--run-once")) {
-  runOnceForYesterday().then(() => process.exit(0));
 }

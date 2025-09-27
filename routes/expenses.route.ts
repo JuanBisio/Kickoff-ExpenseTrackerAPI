@@ -16,34 +16,45 @@ router.post("/", async (req, res) => {
 });
 
 // obtener un gasto por id 
-router.get("/:id", async (req, res)=>{
-  const { id } = req.params;
-  const exp = await Expense.findById(id);
-  if (!exp) return res.status(404).json({err: "El gasto no se encontro"})
-  res.json(exp);
-})
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const exp = await Expense.findById(id);
+    if (!exp) return res.status(404).json({ err: "El gasto no se encontro" });
+    res.json(exp);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener el gasto" });
+  }
+});
 
 // Modificar una descripcion. por id 
-router.patch('/:id/description', async (req, res)=>{
-  const { id } = req.params;
-  const { description } = req.body;
-  if (!description) return res.status(400).json({err: 'Falta la descripcion'});
-  const expUpdate = await Expense.findByIdAndUpdate(id, {description}, {new:true});
-  if (!expUpdate) return res.status(404).json({err: 'El gasto no se encontro'});
-  res.json(expUpdate); 
-})
+router.patch('/:id/description', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+    if (!description) return res.status(400).json({ err: 'Falta la descripcion' });
+    const expUpdate = await Expense.findByIdAndUpdate(id, { description }, { new: true });
+    if (!expUpdate) return res.status(404).json({ err: 'El gasto no se encontro' });
+    res.json(expUpdate);
+  } catch (err) {
+    res.status(500).json({ error: "Error al actualizar la descripcion" });
+  }
+});
 
 //Marcar como pagado un gasto.
 
-router.patch('/:id/paid', async (req, res)=>{
-  const { id } = req.params;
-  const { paid } = req.body;
-  if (!paid) return res.status(400).json({err:'Falta el pago'})
-  
-  const expUpdate = await Expense.findByIdAndUpdate(id, {paid}, {new:true} );
-  if (!expUpdate) return res.status(404).json({err: 'El pago no se encontro'});
-  res.json(expUpdate); 
+router.patch('/:id/paid', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { paid } = req.body;
+    if (typeof paid === "undefined") return res.status(400).json({ err: 'Falta el pago' });
 
+    const expUpdate = await Expense.findByIdAndUpdate(id, { paid }, { new: true });
+    if (!expUpdate) return res.status(404).json({ err: 'El pago no se encontro' });
+    res.json(expUpdate);
+  } catch (err) {
+    res.status(500).json({ error: "Error al actualizar el pago" });
+  }
 });
 
 // Historico de gastos, con filtros y paginacion
@@ -88,21 +99,25 @@ router.get("/", async (req, res) => {
 //Obtener el total de gastos, permitiendo filtro por fecha desde y hasta, pagados, no pagados, o todos y paginacion.
 
 router.get("/summary/total", async (req, res) => {
-  const { from, to, paid = "all" } = req.query as any;
-  const match: any = {};
-  if (from || to) {
-    match.date = {};
-    if (from) match.date.$gte = new Date(from);
-    if (to) match.date.$lte = new Date(to);
+  try {
+    const { from, to, paid = "all" } = req.query as any;
+    const match: any = {};
+    if (from || to) {
+      match.date = {};
+      if (from) match.date.$gte = new Date(from);
+      if (to) match.date.$lte = new Date(to);
+    }
+    if (paid !== "all") match.paid = paid === "true";
+
+    const [result] = await Expense.aggregate([
+      { $match: match },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" }, count: { $sum: 1 } } },
+    ]);
+
+    res.json({ totalAmount: result?.totalAmount || 0, count: result?.count || 0 });
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener el total de gastos" });
   }
-  if (paid !== "all") match.paid = paid === "true";
-
-  const [result] = await Expense.aggregate([
-    { $match: match }, // Filtrar segun los criterios
-    { $group: { _id: null, totalAmount: { $sum: "$amount" }, count: { $sum: 1 } } },
-  ]);
-
-  res.json({ totalAmount: result?.totalAmount || 0, count: result?.count || 0 });
 });
 
 
