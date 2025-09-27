@@ -3,7 +3,7 @@
 API para **registrar gastos**, consultarlos con filtros (fecha, pagado, texto) y llevar un **histórico de totales diarios** mediante un **cron job nocturno**.  
 
 ---
-
+x
 ## Requisitos previos
 - [Node.js](https://nodejs.org/) >= 18  
 - [npm](https://www.npmjs.com/) o [yarn](https://yarnpkg.com/)  
