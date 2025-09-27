@@ -1,0 +1,1 @@
+{"root":["./src/app.ts","./src/index.ts","./src/data/db.ts","./src/models/dailytotal.ts","./src/models/expense.ts","./src/routes/expenses.route.ts","./src/seed/seed.ts","./src/services/dailytotalsjob.ts"],"version":"5.9.2"}

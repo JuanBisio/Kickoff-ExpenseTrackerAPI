@@ -1,5 +1,5 @@
 import express from "express";
-import expensesRouter from "./routes/expenses.route.js";
+import expensesRouter from "./routes/expenses.route";
 
 
 const app = express();

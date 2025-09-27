@@ -1,7 +1,6 @@
-// cron/dailyTotalsJob.ts
 import cron from "node-cron";
-import { DailyTotal } from "../models/DailyTotal.ts";
-import { Expense } from "../models/Expense.ts";
+import { DailyTotal } from "models/DailyTotal";
+import { Expense } from "models/Expense";
 
 
 // Formatea fecha "YYYY-MM-DD"
@@ -12,6 +11,12 @@ function ymd(d: Date) {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
+
+// LIBRERIAS
+//date-fns  
+//Express-validator
+//Validator
+
 
 // Calcula total de gastos para un día y lo guarda en DailyTotal
 async function computeForDay(day: Date) {
@@ -26,6 +31,7 @@ async function computeForDay(day: Date) {
     //{ $group: { _id: "$paid", total: { $sum: "$amount" } } } // ejemplo agrupar por pagado o no pagado
   ]);
 
+  console.log(start, end, result);
   const total = result?.total || 0;
   await DailyTotal.updateOne(
     { dateKey }, // filtro
@@ -38,13 +44,13 @@ async function computeForDay(day: Date) {
 export async function runOnceForYesterday() {
   //Calcular la fecha de ayer
   const now = new Date();
-  const y = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1);
+  const y = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   await computeForDay(y);
 }
 
 // Programa 00:05 hora local todos los días
 export function scheduleDailyTotals() {
-  cron.schedule("5 0 * * *", async () => { // 00:05 cada día
+  cron.schedule("* * * * *", async () => { // 00:05 cada día
     try { await runOnceForYesterday(); } catch (e) { console.error(e); }
   });
   console.log("Cron daily totals programado 00:05 local");

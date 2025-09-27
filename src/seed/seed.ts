@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { Expense } from "../models/Expense.ts";
-import { connectDB } from "../data/db.ts";
+import { Expense } from "../models/Expense";
+import { connectDB } from "../data/db";
 
 async function seed() {
-  const MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/expensesdb";
+  const MONGO_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/expenses_db";
   await connectDB(MONGO_URI);
 
   // Clean existing expenses

@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { Expense } from "../models/Expense.ts";
+import { Expense } from "models/Expense";
+
 
 const router = Router();
 
@@ -69,15 +70,17 @@ router.get("/", async (req, res) => {
     //filter.algo agrega una propiedad al objeto filter, si existe la actualiza 
     if (paid !== "all") filter.paid = paid === "true";
     if (desc) filter.description = { $regex: desc, $options: "i" }; //$regex: busqueda por patron (expresion regular) en la desc 
+    // i => ignora mayusculas y minusculas
 
     // Paginación
     const pageNum = Math.max(parseInt(page, 10), 1);
     const limitNum = Math.min(Math.max(parseInt(limit, 10), 1), 100);
+    if (limit > 100 || limit < 1) throw new Error("Limite no permitido") // limite maximo 100, minimo 1, default 10
     const skip = (pageNum - 1) * limitNum;
 
     // Consulta
     const [items, total] = await Promise.all([
-      Expense.find(filter).sort({ date: -1, _id: -1 }).skip(skip).limit(limitNum),
+      Expense.find(filter).sort({ date: -1, _id: -1 }).skip(skip).limit(limitNum), // ordena por fecha descendente y luego por id descendente
       Expense.countDocuments(filter),
     ]);
     // console.log(items);
@@ -91,7 +94,7 @@ router.get("/", async (req, res) => {
       items,
     });
   } catch (err) {
-    res.status(500).json({ error: "Error al obtener los gastos" });
+    res.status(500).json({ error: err || "Error al obtener los gastos" });
   }
 });
 
