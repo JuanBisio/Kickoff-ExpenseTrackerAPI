@@ -3,17 +3,21 @@ import cron from "node-cron";
 import { DailyTotal } from "../models/DailyTotal.ts";
 import { Expense } from "../models/Expense.ts";
 
+
+// Formatea fecha "YYYY-MM-DD"
 function ymd(d: Date) {
+  // d es local 
   const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2, "0");
+  const m = String(d.getMonth()+1).padStart(2, "0"); //padStart completa con 0 a la izquierda ejemplo 07 (Julio)
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
+// Calcula total de gastos para un día y lo guarda en DailyTotal
 async function computeForDay(day: Date) {
-  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0,0,0,0);
-  const end   = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23,59,59,999);
-  const dateKey = ymd(start);
+  const start = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0,0,0,0); // inicio del día
+  const end   = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23,59,59,999); // fin del día
+  const dateKey = ymd(start); //Formatea la fecha de inicio del día "YYYY-MM-DD"
 
   const [result] = await Expense.aggregate([
     { $match: { date: { $gte: start, $lte: end } } },
@@ -21,8 +25,8 @@ async function computeForDay(day: Date) {
   ]);
 
   const total = result?.total || 0;
-  await DailyTotal.updateOne({ dateKey }, { $set: { total } }, { upsert: true });
-  console.log(`✅ DailyTotal upsert ${dateKey} = ${total}`);
+  await DailyTotal.updateOne({ dateKey }, { $set: { total } }, { upsert: true }); // upsert: true crea si no existe
+  console.log(`DailyTotal upsert ${dateKey} = ${total}`);
 }
 
 export async function runOnceForYesterday() {
@@ -33,10 +37,10 @@ export async function runOnceForYesterday() {
 
 // Programa 00:05 hora local todos los días
 export function scheduleDailyTotals() {
-  cron.schedule("5 0 * * *", async () => {
+  cron.schedule("5 0 * * *", async () => { // 00:05 cada día
     try { await runOnceForYesterday(); } catch (e) { console.error(e); }
   });
-  console.log("⏰ Cron daily totals programado 00:05 local");
+  console.log("Cron daily totals programado 00:05 local");
 }
 
 if (process.argv.includes("--run-once")) {
